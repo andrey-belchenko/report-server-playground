@@ -1,0 +1,4 @@
+$name$: {
+    useValue: () => useSelector((state: state) => state.$name$),
+    refresh: () => load("$name$", {})
+},

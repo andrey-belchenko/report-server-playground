@@ -1,40 +1,5 @@
 #!/usr/bin/env node
 'use strict'
-var express = require("express");
-var app = express();
-
-// Set up a whitelist and check against it:
-// var whitelist = ['https://localhost:4321','http://localhost:3004']
-var corsOptions = {
-    origin: function (origin, callback) {
-        // if (whitelist.indexOf(origin) !== -1) {
-        //   callback(null, true)
-        // } else {
-        //   callback(new Error('Not allowed by CORS'))
-        // }
-        callback(null, true)
-    }
-}
-var cors = require('cors');
-// Then pass them to cors:
-app.use(cors(corsOptions));
-
-app.use('/app3', express.static('public/app3'));
-app.use('/app4', express.static('public/app4'));
-app.use('/src', express.static('src'));
-
-
-
-app.use("/url", function (req, res, next) {
-    var nodeSSPI = require('node-sspi')
-    var nodeSSPIObj = new nodeSSPI({
-        retrieveGroups: true
-    })
-    nodeSSPIObj.authenticate(req, res, function (err) {
-        res.finished || next()
-    });
-
-});
 
 
 var path = require('path');
@@ -107,7 +72,7 @@ function sqlToJsType(sqlType) {
 }
 
 async function queryMetadata(dataSetName) {
-    var dataSet = dataConfig.data[dataSetName];
+    var dataSet = dataConfig.dataSets[dataSetName];
     var conConfig = dataConfig.dataSources[dataSet.dataSource].properties;
 
     var procObjectId = (await executeSqlQuery(conConfig, `select  max(OBJECT_ID(N'${dataSet.procedure}')) as id`))[0]["id"];
@@ -149,94 +114,3 @@ FROM
     }
     return Promise.resolve({ params: params, fields: fields });
 }
-app.use(express.json());
-app.use("/datasets", function (req, res) {
-    readDataConfig();
-    var aurl = req.url.split('/');
-    var dsName = aurl[1];
-    var subUrl = aurl[2];
-    switch (subUrl) {
-        case 'data':
-            queryData(dsName, req.body).then(function (data) {
-                res.send(data);
-            });
-            break;
-        case 'metadata':
-            queryMetadata(dsName).then(function (model) {
-                res.send(model);
-            })
-            break;
-    }
-});
-
-app.get("/test", (req, res, next) => {
-    res.send("Ок");
-});
-
-
-app.get("/url", (req, res, next) => {
-
-    const os = require('os');
-    const userInfo = os.userInfo();
-
-    var fs = require('fs');
-    var filedata = '';
-    fs.readFile('test.txt', 'utf8', function (err, data) {
-        if (err) {
-            return res.json(err);
-        }
-        var filedata = data;
-
-        var out =
-            'Hello ' +
-            req.connection.user + "(" + userInfo.username + ")"
-        '! Your sid is ' +
-            req.connection.userSid +
-            ' and you belong to following groups:<br/><ul>'
-        if (req.connection.userGroups) {
-            for (var i in req.connection.userGroups) {
-                out += '<li>' + req.connection.userGroups[i] + '</li><br/>\n'
-            }
-        }
-        out += '</ul>'
-        out += filedata + "xxx" + __dirname + process.cwd();
-        res.send(out);
-    });
-});
-
-
-app.get("/sql", (req, res, next) => {
-    var sql = require("mssql");
-
-    // config for your database
-    var config = {
-        user: 'conteq',
-        password: 'conteq',
-        server: '192.168.0.115',
-        database: 'RAOS.Extract'
-    };
-
-    sql.connect(config, function (err) {
-
-        if (err) console.log(err);
-
-        // create Request object
-        var request = new sql.Request();
-
-        // query to the database and get the records
-        request.query('SELECT TOP (10) * FROM [RAOS.Extract].[dbo].[AllDocs]', function (err, recordset) {
-
-            if (err) console.log(err)
-
-            // send records as a response
-            // res.send(recordset.recordset.columns);
-            res.send(recordset.recordsets[0]);
-
-        });
-    });
-});
-
-
-app.listen(3004, () => {
-    console.log("Server running on port 3004");
-});

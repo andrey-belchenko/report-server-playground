@@ -1,0 +1,57 @@
+import { createSlice, configureStore } from '@reduxjs/toolkit';
+import { useSelector } from 'react-redux';
+
+$itemInterfaces$
+
+
+interface state {
+  $stateFields$
+}
+
+const counterSlice = createSlice({
+  name: 'counter',
+  initialState: {
+    $stateFieldsValues$
+  },
+  reducers: {
+    $reducers$
+  },
+});
+
+
+const sss = configureStore({
+  reducer: counterSlice.reducer
+});
+export { sss };
+
+const baseUrl = "http://localhost:3004/datasets";
+
+const load = (dsName: string, params: any) => {
+  fetch(`${baseUrl}/${dsName}/data`,
+    {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(params)
+    }
+  )
+    .then(res => res.json())
+    .then(
+      (result) => {
+        let actions: any = counterSlice.actions;
+        sss.dispatch(actions[dsName](result));
+      }
+    );
+}
+
+const data = {
+  $remoteItems$
+  $localItems$
+}
+export { data }
+
+
+
+
