@@ -1,65 +1,38 @@
-import { createSlice, Dispatch, configureStore } from '@reduxjs/toolkit';
+import { createSlice, configureStore } from '@reduxjs/toolkit';
 import { useSelector } from 'react-redux';
 
 interface state {
-  dataSets: {
-    list: listItem[];
-    report: reportItem[];
-  }
+  list: listItem[];
+  report: reportItem[];
+  year: number;
+  month: number;
 }
 
 const counterSlice = createSlice({
   name: 'counter',
   initialState: {
-    dataSets: {
-      list: new Array<listItem>(),
-      report: new Array<reportItem>()
-    },
+
+    list: new Array<listItem>(),
+    report: new Array<reportItem>(),
+    year: 0,
+    month: 0
+
   },
   reducers: {
-    listSet: (state: state, action) => {
-      state.dataSets.list = action.payload;
+    list: (state: state, action) => {
+      state.list = action.payload;
     },
-    reportSet: (state: state, action) => {
-      state.dataSets.report = action.payload;
+    report: (state: state, action) => {
+      state.report = action.payload;
+    },
+    year: (state: state, action) => {
+      state.year = action.payload;
+    },
+    month: (state: state, action) => {
+      state.month = action.payload;
     },
   },
 });
-
-function buildFetchInit(params: any) {
-  return {
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(params)
-  }
-}
-
-const listFetch = () => (dispatch: Dispatch) => {
-
-  fetch("http://localhost:3004/datasets/list/data", buildFetchInit({}))
-    .then(res => res.json())
-    .then(
-      (result) => {
-        dispatch(counterSlice.actions.listSet(result));
-      }
-    );
-};
-// { "Year": 2020, "Month": 6 }
-const reportFetch = (params: any) => (dispatch: Dispatch) => {
-  fetch("http://localhost:3004/datasets/report/data", buildFetchInit(params))
-    .then(res => res.json())
-    .then(
-      (result) => {
-        dispatch(counterSlice.actions.reportSet(result));
-      }
-    );
-};
-
-const listSelect = (state: state) => state.dataSets.list;
-const reportSelect = (state: state) => state.dataSets.report;
 
 
 const sss = configureStore({
@@ -67,25 +40,45 @@ const sss = configureStore({
 });
 export { sss };
 
-var dispatch: any = sss.dispatch;
+const baseUrl = "http://localhost:3004/datasets";
 
+const load = (dsName: string, params: any) => {
+  fetch(`${baseUrl}/${dsName}/data`,
+    {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(params)
+    }
+  )
+    .then(res => res.json())
+    .then(
+      (result) => {
+        //callback(result);
+        let actions: any = counterSlice.actions;
+        sss.dispatch(actions[dsName](result));
+      }
+    );
+}
 
 const data = {
   list: {
-    useData: function () {
-      return useSelector(listSelect)
-    },
-    refresh: function () {
-      dispatch(listFetch());
-    }
+    useValue: () => useSelector((state: state) => state.list),
+    refresh: () => load("list", {})
   },
   report: {
-    useData: function () {
-      return useSelector(reportSelect)
-    },
-    refresh: function (Year: number, Month: number) {
-      dispatch(reportFetch({Year,Month}));
-    }
+    useValue: () => useSelector((state: state) => state.report),
+    refresh: (Year: number, Month: number) => load("report", { Year, Month })
+  },
+  year: {
+    useValue: () => useSelector((state: state) => state.year),
+    set: (value: number) => sss.dispatch(counterSlice.actions.year(value))
+  },
+  month: {
+    useValue: () => useSelector((state: state) => state.month),
+    set: (value: number) => sss.dispatch(counterSlice.actions.month(value))
   }
 }
 export { data }

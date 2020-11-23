@@ -68,7 +68,7 @@ async function executeSqlQuery(conConfig, query, parama) {
 }
 
 async function queryData(dataSetName, params) {
-    var dataSet = dataConfig.dataSets[dataSetName];
+    var dataSet = dataConfig.data[dataSetName];
     var conConfig = dataConfig.dataSources[dataSet.dataSource].properties;
     var data = await executeSqlProcedure(conConfig, dataSet.procedure, params);
     return Promise.resolve(data);

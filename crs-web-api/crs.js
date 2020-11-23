@@ -12,15 +12,17 @@ exports.configure = function () {
         }
       }
     },
-    dataSets: {
+    data: {
       report: {
         dataSource: "dataMart",
-        procedure:"[report].[GetReportActualByMonth]"
+        procedure: "[report].[GetReportActualByMonth]"
       },
       list: {
         dataSource: "dataMart",
-        procedure:"[report].[GetFilterProject]"
-      }
+        procedure: "[report].[GetFilterProject]"
+      },
+      year: 0,
+      month: 0
     }
   }
 };
