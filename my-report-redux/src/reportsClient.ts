@@ -1,7 +1,7 @@
 import { createSlice, configureStore } from '@reduxjs/toolkit';
 import { useSelector } from 'react-redux';
 
-interface state {
+interface IState {
   list: listItem[];
   report: reportItem[];
   year: number;
@@ -18,21 +18,24 @@ const counterSlice = createSlice({
     month: 0
 
   },
+  
   reducers: {
-    list: (state: state, action) => {
-      state.list = action.payload;
+    report: (state: IState, action) => {
+        state.report = action.payload;
     },
-    report: (state: state, action) => {
-      state.report = action.payload;
+    list: (state: IState, action) => {
+        state.list = action.payload;
     },
-    year: (state: state, action) => {
-      state.year = action.payload;
+    year: (state: IState, action) => {
+        state.year = action.payload;
     },
-    month: (state: state, action) => {
-      state.month = action.payload;
+    month: (state: IState, action) => {
+        state.month = action.payload;
     },
+    
   },
 });
+
 
 
 const sss = configureStore({
@@ -65,19 +68,19 @@ const load = (dsName: string, params: any) => {
 
 const data = {
   list: {
-    useValue: () => useSelector((state: state) => state.list),
+    useValue: () => useSelector((state: IState) => state.list),
     refresh: () => load("list", {})
   },
   report: {
-    useValue: () => useSelector((state: state) => state.report),
+    useValue: () => useSelector((state: IState) => state.report),
     refresh: (Year: number, Month: number) => load("report", { Year, Month })
   },
   year: {
-    useValue: () => useSelector((state: state) => state.year),
+    useValue: () => useSelector((state: IState) => state.year),
     set: (value: number) => sss.dispatch(counterSlice.actions.year(value))
   },
   month: {
-    useValue: () => useSelector((state: state) => state.month),
+    useValue: () => useSelector((state: IState) => state.month),
     set: (value: number) => sss.dispatch(counterSlice.actions.month(value))
   }
 }

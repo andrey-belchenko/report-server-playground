@@ -1,4 +1,4 @@
 $name$: {
-    useValue: () => useSelector((state: state) => state.$name$),
+    useValue: () => useSelector((state: IState) => state.$name$),
     set: (value: number) => sss.dispatch(counterSlice.actions.$name$(value))
 },

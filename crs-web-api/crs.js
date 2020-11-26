@@ -21,8 +21,8 @@ exports.configure = function () {
         dataSource: "dataMart",
         procedure: "[report].[GetFilterProject]"
       },
-      year: 0,
-      month: 0
+      year: {example:0},
+      month: {example:0}
     }
   }
 };

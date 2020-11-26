@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 $itemInterfaces$
 
 
-interface state {
+interface IState {
   $stateFields$
 }
 
@@ -47,8 +47,7 @@ const load = (dsName: string, params: any) => {
 }
 
 const data = {
-  $remoteItems$
-  $localItems$
+  $dataItems$
 }
 export { data }
 

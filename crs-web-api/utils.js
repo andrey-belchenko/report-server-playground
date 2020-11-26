@@ -1,19 +1,20 @@
-#!/usr/bin/env node
-'use strict'
+
 
 
 var path = require('path');
 var sql = require("mssql");
 var dataConfig = null;
 
-function readDataConfig() {
+exports.getDataConfig = function () {
+    return dataConfig;
+}
+
+exports.readDataConfig = function () {
     var filePath = path.join(process.cwd(), 'crs.js');
     delete require.cache[filePath];
     var configJs = require(filePath);
     dataConfig = configJs.configure();
 }
-readDataConfig();
-
 
 
 async function executeSqlProcedure(conConfig, procName, params) {
@@ -25,14 +26,15 @@ async function executeSqlProcedure(conConfig, procName, params) {
     var result = await request.execute(procName);
     return Promise.resolve(result.recordsets[0]);
 }
-async function executeSqlQuery(conConfig, query, parama) {
+async function executeSqlQuery(conConfig, query) {
+
     await sql.connect(conConfig);
     var request = new sql.Request();
     var result = await request.query(query);
     return Promise.resolve(result.recordsets[0]);
 }
 
-async function queryData(dataSetName, params) {
+exports.queryData = async function (dataSetName, params) {
     var dataSet = dataConfig.data[dataSetName];
     var conConfig = dataConfig.dataSources[dataSet.dataSource].properties;
     var data = await executeSqlProcedure(conConfig, dataSet.procedure, params);
@@ -71,8 +73,8 @@ function sqlToJsType(sqlType) {
     return jsType;
 }
 
-async function queryMetadata(dataSetName) {
-    var dataSet = dataConfig.dataSets[dataSetName];
+exports.queryMetadata = async function (dataSetName) {
+    var dataSet = dataConfig.data[dataSetName];
     var conConfig = dataConfig.dataSources[dataSet.dataSource].properties;
 
     var procObjectId = (await executeSqlQuery(conConfig, `select  max(OBJECT_ID(N'${dataSet.procedure}')) as id`))[0]["id"];

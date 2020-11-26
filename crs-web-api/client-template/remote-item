@@ -1,4 +1,4 @@
 $name$: {
-    useValue: () => useSelector((state: state) => state.$name$),
+    useValue: () => useSelector((state: IState) => state.$name$),
     refresh: () => load("$name$", {})
 },
