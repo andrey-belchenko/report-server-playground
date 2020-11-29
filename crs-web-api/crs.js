@@ -21,8 +21,20 @@ exports.configure = function () {
         dataSource: "dataMart",
         procedure: "[report].[GetFilterProject]"
       },
-      year: {example:0},
-      month: {example:0}
+      taskList: {
+        dataSource: "dataMart",
+        query: "select top 100 * from [data].[DimTask]"
+      },
+      projTaskList: {
+        dataSource: "dataMart",
+        query: "select  * from [data].[DimTask] where [ProjectUID]=@ProjectUID",
+        paramsExample: {
+          ProjectUID: ""
+        }
+      },
+      year: { example: 0 },
+      month: { example: 0 },
+      ProjectUID: { example: "" }
     }
   }
 };

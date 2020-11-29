@@ -1,10 +1,19 @@
 
 import React from 'react';
-import { data } from './reportsClient';
+import { data, projTaskListItem } from './reportsClient';
+
+function showTasks(tasks:projTaskListItem[]) {
+  var x = [];
+  for (let task of tasks) {
+    x.push(<div>{task.TaskUID}</div>);
+  }
+  return x;
+}
 
 function ReportCanvas() {
   const reportData = data.report.useValue();
   const month = data.month.useValue();
+  const tasks = data.projTaskList.useValue();
   var x = (
     <div>
       <ul>
@@ -14,6 +23,10 @@ function ReportCanvas() {
             {item.ProjectUID} {item.MonthName}
           </li>
         ))}
+      </ul>
+      <ul>
+        <div>Tasks count:{tasks.length}</div>
+        {showTasks(tasks)}
       </ul>
     </div>
   );

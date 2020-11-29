@@ -10,37 +10,46 @@ exports.getDataConfig = function () {
 }
 
 exports.readDataConfig = function () {
-    var filePath = path.join(process.cwd(), 'crs.js');
+    let filePath = path.join(process.cwd(), 'crs.js');
     delete require.cache[filePath];
-    var configJs = require(filePath);
+    let configJs = require(filePath);
     dataConfig = configJs.configure();
 }
 
 
 async function executeSqlProcedure(conConfig, procName, params) {
     await sql.connect(conConfig);
-    var request = new sql.Request();
+    let request = new sql.Request();
     for (let parName in params) {
         request.input(parName, params[parName]);
     }
-    var result = await request.execute(procName);
+    let result = await request.execute(procName);
     return Promise.resolve(result.recordsets[0]);
 }
-async function executeSqlQuery(conConfig, query) {
+async function executeSqlQuery(conConfig, query, params) {
 
     await sql.connect(conConfig);
-    var request = new sql.Request();
-    var result = await request.query(query);
+    let request = new sql.Request();
+    for (let parName in params) {
+        request.input(parName, params[parName]);
+    }
+    let result = await request.query(query);
     return Promise.resolve(result.recordsets[0]);
 }
 
 exports.queryData = async function (dataSetName, params) {
-    var dataSet = dataConfig.data[dataSetName];
-    var conConfig = dataConfig.dataSources[dataSet.dataSource].properties;
-    var data = await executeSqlProcedure(conConfig, dataSet.procedure, params);
+    let dataSet = dataConfig.data[dataSetName];
+    let conConfig = dataConfig.dataSources[dataSet.dataSource].properties;
+    let data = null;
+    if (dataSet.procedure) {
+        data = await executeSqlProcedure(conConfig, dataSet.procedure, params);
+    } else {
+        data = await executeSqlQuery(conConfig, dataSet.query, params);
+    }
+
     return Promise.resolve(data);
 }
-//TODO : не проверено
+//TODO: need check
 var sqlToJsTypes = {
     "BIGINT": "number",
     "INT": "number",
@@ -73,15 +82,32 @@ function sqlToJsType(sqlType) {
     return jsType;
 }
 
-exports.queryMetadata = async function (dataSetName) {
-    var dataSet = dataConfig.data[dataSetName];
-    var conConfig = dataConfig.dataSources[dataSet.dataSource].properties;
+function getDataSet(dataSetName) {
+    return dataConfig.data[dataSetName];
+}
+function getConConfig(dataSetName) {
+    let dataSet = getDataSet(dataSetName);
+    return dataConfig.dataSources[dataSet.dataSource].properties;
+}
 
-    var procObjectId = (await executeSqlQuery(conConfig, `select  max(OBJECT_ID(N'${dataSet.procedure}')) as id`))[0]["id"];
+
+async function checkProcExists(dataSetName) {
+
+    let dataSet = getDataSet(dataSetName);
+    let conConfig = getConConfig(dataSetName);
+    let procObjectId = (await executeSqlQuery(conConfig, `select  max(OBJECT_ID(N'${dataSet.procedure}')) as id`))[0]["id"];
     if (!procObjectId) {
-        throw new Error(`object ${dataSet.procedure} does not exist`)
+        throw new Error(`Object ${dataSet.procedure} does not exist`)
     }
-    var paramsQuery = `
+    return Promise.resolve();
+
+}
+
+async function loadProcParamsMetadata(dataSetName) {
+
+    let dataSet = getDataSet(dataSetName);
+    let conConfig = getConConfig(dataSetName);
+    let paramsQuery = `
 SELECT 
     [name], 
     [type] = TYPE_NAME([user_type_id])
@@ -91,28 +117,62 @@ WHERE
     object_id = OBJECT_ID(N'${dataSet.procedure}')
 ORDER BY 
     [parameter_id]`;
-    var paramsInfo = await executeSqlQuery(conConfig, paramsQuery);
-    var factParsStr = "";
-    var q = "";
+    let paramsInfo = await executeSqlQuery(conConfig, paramsQuery);
+    let factParsStr = "";
+    let q = "";
     let params = {}
     for (let info of paramsInfo) {
-        var parName = info.name.replace('@', '');
+        let parName = info.name.replace('@', '');
         params[parName] = { "type": sqlToJsType(info["type"]), "srcType": info["type"] };
         factParsStr += q + "null";
         q = ",";
     }
+    return Promise.resolve(params);
+}
 
-    var fieldsQuery = `
+async function loadFieldsMetadata(conConfig, query) {
+    let fieldsQuery = `
 SELECT 
     [name],
     system_type_name as [type] 
 FROM 
-    [sys].[dm_exec_describe_first_result_set](N'exec ${dataSet.procedure} ${factParsStr}', NULL, 0);`;
+    [sys].[dm_exec_describe_first_result_set](N'${query}', NULL, 0);`; //TODO quotes escape. Replace ' with '' ?
 
-    var fieldsInfo = await executeSqlQuery(conConfig, fieldsQuery);
+    let fieldsInfo = await executeSqlQuery(conConfig, fieldsQuery);
     let fields = {}
     for (let info of fieldsInfo) {
         fields[info.name] = { "type": sqlToJsType(info["type"]), "srcType": info["type"] };
     }
+    return Promise.resolve(fields);
+}
+
+exports.queryMetadata = async function (dataSetName) {
+  
+    let dataSet = dataConfig.data[dataSetName];
+    let conConfig = dataConfig.dataSources[dataSet.dataSource].properties;
+
+    let params = {};
+    let query = null;
+    if (dataSet.procedure) {
+        checkProcExists(dataSetName);
+        params = await loadProcParamsMetadata(dataSetName);
+        let factParsStr = "";
+        let q = "";
+        for (let name in params) {
+            factParsStr += q + "null";
+            q = ",";
+        }
+        query = `exec ${dataSet.procedure} ${factParsStr}`;
+    } else {
+        query = dataSet.query;
+        if (dataSet.paramsExample) {
+            for (let name in dataSet.paramsExample) {
+                params[name] = { type: typeof (dataSet.paramsExample[name]) };
+            }
+        }
+    }
+
+    let fields = await loadFieldsMetadata(conConfig, query);
     return Promise.resolve({ params: params, fields: fields });
+
 }

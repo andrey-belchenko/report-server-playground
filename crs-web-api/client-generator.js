@@ -42,7 +42,6 @@ function applyVar(template, name, value) {
         }
         let s1 = res.slice(0, i);
         let s2 = res.slice(i + name.length);
-
         res = [s1, v, s2].join("");
         i = res.indexOf(name);
     }
@@ -70,30 +69,23 @@ exports.generate = async function () {
     //for further synchronous usage
     for (let name in config.data) {
         let item = config.data[name];
-        // 
         if (item.dataSource) {
             await getOrQueryMetadata(name);
         }
     }
 
-
     mt = mapItemsObject(mt, config.data, "itemInterfaces",
         (name, item) => {
-            let metadata = null;
             if (item.dataSource) {
-                metadata = getMetadata(name);
-            }
-            if (metadata) {
                 let it = getTemplate("item-interface");
                 it = applyVar(it, "name", name + itemSuffix);
-                let sfields = "";
-                for (let fieldName in metadata.fields) {
+                let metadata = getMetadata(name);
+                it = mapItemsObject(it, metadata.fields, "fields", (name, item) => {
                     let ft = getTemplate("field");
-                    ft = applyVar(ft, "name", fieldName);
-                    ft = applyVar(ft, "type", metadata.fields[fieldName].type);
-                    sfields += ft;
-                }
-                it = applyVar(it, "fields", sfields);
+                    ft = applyVar(ft, "name", name);
+                    ft = applyVar(ft, "type", item.type);
+                    return ft;
+                });
                 return it;
             } else {
                 return "";
@@ -121,7 +113,16 @@ exports.generate = async function () {
             if (item.dataSource) {
                 value = `new Array<${name + itemSuffix}>()`;
             } else {
-                value = config.data[name].example.toString();
+                var val = config.data[name].example;
+                var type = typeof (val);
+                switch (type) {
+                    case "number":
+                        value = val.toString();
+                        break;
+                    case "string":
+                        value = '"' + val + '"';
+                        break;
+                }
             }
             let ft = getTemplate("field-value");
             ft = applyVar(ft, "name", name);
@@ -139,13 +140,13 @@ exports.generate = async function () {
         }
     );
 
-
     mt = mapItemsObject(mt, config.data, "dataItems",
         (name, item) => {
             let ft = null;
+            let metadata = getMetadata(name);
             if (item.dataSource) {
                 ft = getTemplate("remote-item");
-                let metadata = getMetadata(name);
+
                 ft = mapItemsObject(ft, metadata.params, "params", (name, item) => {
                     let it = getTemplate("param");
                     it = applyVar(it, "name", name);
@@ -159,6 +160,8 @@ exports.generate = async function () {
                 });
             } else {
                 ft = getTemplate("local-item");
+                let type = typeof (config.data[name].example);
+                ft = applyVar(ft, "type", type);
             }
             ft = applyVar(ft, "name", name);
             return ft;
@@ -166,9 +169,6 @@ exports.generate = async function () {
         }
     );
     fs.writeFileSync("1.txt", mt);
-
-
-
 }
 
 exports.generate();
