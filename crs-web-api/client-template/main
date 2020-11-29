@@ -9,7 +9,7 @@ interface IState {
 }
 
 const counterSlice = createSlice({
-  name: 'counter',
+  name: 'reportData',
   initialState: {
     $stateFieldsValues$
   },
@@ -19,10 +19,10 @@ const counterSlice = createSlice({
 });
 
 
-const sss = configureStore({
+const reportStore = configureStore({
   reducer: counterSlice.reducer
 });
-export { sss };
+export { reportStore };
 
 const baseUrl = "http://localhost:3004/datasets";
 
@@ -41,7 +41,7 @@ const load = (dsName: string, params: any) => {
     .then(
       (result) => {
         let actions: any = counterSlice.actions;
-        sss.dispatch(actions[dsName](result));
+        reportStore.dispatch(actions[dsName](result));
       }
     );
 }

@@ -75,28 +75,7 @@ exports.generate = async function () {
             await getOrQueryMetadata(name);
         }
     }
-    // for (let name in config.data) {
-    //     let item = config.data[name];
-    //     let metadata = null;
-    //     if (item.dataSource) {
-    //         metadata = await getMetadata(name);
-    //     }
 
-    //     if (metadata) {
-    //         let it = getTemplate("item-interface");
-    //         it = applyVar(it, "name", name + itemSuffix);
-    //         let sfields = "";
-    //         for (let fieldName in metadata.fields) {
-    //             let ft = getTemplate("field");
-    //             ft = applyVar(ft, "name", fieldName);
-    //             ft = applyVar(ft, "type", metadata.fields[fieldName].type);
-    //             sfields += ft;
-    //         }
-    //         it = applyVar(it, "fields", sfields);
-    //         stypes += it;
-    //     }
-    // }
-    // mt = applyVar(mt, "itemInterfaces", stypes);
 
     mt = mapItemsObject(mt, config.data, "itemInterfaces",
         (name, item) => {
@@ -140,7 +119,7 @@ exports.generate = async function () {
         (name, item) => {
             let value = "";
             if (item.dataSource) {
-                value = `new Array<${name + itemSuffix }>()`;
+                value = `new Array<${name + itemSuffix}>()`;
             } else {
                 value = config.data[name].example.toString();
             }
@@ -166,6 +145,18 @@ exports.generate = async function () {
             let ft = null;
             if (item.dataSource) {
                 ft = getTemplate("remote-item");
+                let metadata = getMetadata(name);
+                ft = mapItemsObject(ft, metadata.params, "params", (name, item) => {
+                    let it = getTemplate("param");
+                    it = applyVar(it, "name", name);
+                    it = applyVar(it, "type", item.type);
+                    return it;
+                });
+                ft = mapItemsObject(ft, metadata.params, "values", (name) => {
+                    let it = getTemplate("value");
+                    it = applyVar(it, "name", name);
+                    return it;
+                });
             } else {
                 ft = getTemplate("local-item");
             }

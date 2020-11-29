@@ -1,24 +1,53 @@
 import { createSlice, configureStore } from '@reduxjs/toolkit';
 import { useSelector } from 'react-redux';
 
+export interface reportItem {
+    ProjectUID: string;
+    Year: number;
+    MonthName: string;
+    F03: string;
+    F04: string;
+    F05: number;
+    F06: number;
+    F07: number;
+    F08: number;
+    F09: number;
+    F10: number;
+    F11: number;
+    F12: number;
+    F13: number;
+    F14: number;
+    F15: number;
+    F16: number;
+    F17: number;
+    F18: number;
+    
+}
+export interface listItem {
+    ProjectName: string;
+    ProjectUID: string;
+    
+}
+
+
+
 interface IState {
-  list: listItem[];
   report: reportItem[];
+  list: listItem[];
   year: number;
   month: number;
+  
 }
 
 const counterSlice = createSlice({
-  name: 'counter',
+  name: 'reportData',
   initialState: {
-
-    list: new Array<listItem>(),
     report: new Array<reportItem>(),
+    list: new Array<listItem>(),
     year: 0,
-    month: 0
-
+    month: 0,
+    
   },
-  
   reducers: {
     report: (state: IState, action) => {
         state.report = action.payload;
@@ -37,11 +66,10 @@ const counterSlice = createSlice({
 });
 
 
-
-const sss = configureStore({
+const reportStore = configureStore({
   reducer: counterSlice.reducer
 });
-export { sss };
+export { reportStore };
 
 const baseUrl = "http://localhost:3004/datasets";
 
@@ -59,42 +87,33 @@ const load = (dsName: string, params: any) => {
     .then(res => res.json())
     .then(
       (result) => {
-        //callback(result);
         let actions: any = counterSlice.actions;
-        sss.dispatch(actions[dsName](result));
+        reportStore.dispatch(actions[dsName](result));
       }
     );
 }
 
 const data = {
-  list: {
-    useValue: () => useSelector((state: IState) => state.list),
-    refresh: () => load("list", {})
-  },
   report: {
-    useValue: () => useSelector((state: IState) => state.report),
-    refresh: (Year: number, Month: number) => load("report", { Year, Month })
+      useValue: () => useSelector((state: IState) => state.report),
+      refresh: (Year: number,Month: number,) => load("report", {Year,Month,})
+  },
+  list: {
+      useValue: () => useSelector((state: IState) => state.list),
+      refresh: () => load("list", {})
   },
   year: {
-    useValue: () => useSelector((state: IState) => state.year),
-    set: (value: number) => sss.dispatch(counterSlice.actions.year(value))
+      useValue: () => useSelector((state: IState) => state.year),
+      set: (value: number) => reportStore.dispatch(counterSlice.actions.year(value))
   },
   month: {
-    useValue: () => useSelector((state: IState) => state.month),
-    set: (value: number) => sss.dispatch(counterSlice.actions.month(value))
-  }
+      useValue: () => useSelector((state: IState) => state.month),
+      set: (value: number) => reportStore.dispatch(counterSlice.actions.month(value))
+  },
+  
 }
 export { data }
 
 
-export interface reportItem {
-  ProjectUID: string;
-  MonthName: string;
-}
-
-export interface listItem {
-  ProjectUID: string;
-  ProjectName: string;
-}
 
 

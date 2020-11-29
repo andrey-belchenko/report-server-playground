@@ -40,7 +40,7 @@ interface IState {
 }
 
 const counterSlice = createSlice({
-  name: 'counter',
+  name: 'reportData',
   initialState: {
     report: new Array<reportItem>(),
     list: new Array<listItem>(),
@@ -66,10 +66,10 @@ const counterSlice = createSlice({
 });
 
 
-const sss = configureStore({
+const reportStore = configureStore({
   reducer: counterSlice.reducer
 });
-export { sss };
+export { reportStore };
 
 const baseUrl = "http://localhost:3004/datasets";
 
@@ -88,7 +88,7 @@ const load = (dsName: string, params: any) => {
     .then(
       (result) => {
         let actions: any = counterSlice.actions;
-        sss.dispatch(actions[dsName](result));
+        reportStore.dispatch(actions[dsName](result));
       }
     );
 }
@@ -96,7 +96,7 @@ const load = (dsName: string, params: any) => {
 const data = {
   report: {
       useValue: () => useSelector((state: IState) => state.report),
-      refresh: () => load("report", {})
+      refresh: (Year: number,Month: number,) => load("report", {Year,Month,})
   },
   list: {
       useValue: () => useSelector((state: IState) => state.list),
@@ -104,11 +104,11 @@ const data = {
   },
   year: {
       useValue: () => useSelector((state: IState) => state.year),
-      set: (value: number) => sss.dispatch(counterSlice.actions.year(value))
+      set: (value: number) => reportStore.dispatch(counterSlice.actions.year(value))
   },
   month: {
       useValue: () => useSelector((state: IState) => state.month),
-      set: (value: number) => sss.dispatch(counterSlice.actions.month(value))
+      set: (value: number) => reportStore.dispatch(counterSlice.actions.month(value))
   },
   
 }

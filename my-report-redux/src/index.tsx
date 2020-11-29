@@ -3,13 +3,12 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import {sss} from './reportsClient';
-// import {sss} from './counterSlice';
+import {reportStore} from './reportsClient';
 import { Provider } from 'react-redux';
 
 ReactDOM.render(
   <React.StrictMode>
-    <Provider store={sss}>
+    <Provider store={reportStore}>
       <App />
     </Provider>
 
