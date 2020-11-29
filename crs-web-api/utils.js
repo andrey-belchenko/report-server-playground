@@ -10,11 +10,12 @@ exports.getDataConfig = function () {
 }
 
 exports.readDataConfig = function () {
-    let filePath = path.join(process.cwd(), 'crs.js');
+    let filePath = path.join(process.cwd(), 'dataconfig.js');
     delete require.cache[filePath];
     let configJs = require(filePath);
     dataConfig = configJs.configure();
 }
+
 
 
 async function executeSqlProcedure(conConfig, procName, params) {
@@ -38,8 +39,8 @@ async function executeSqlQuery(conConfig, query, params) {
 }
 
 exports.queryData = async function (dataSetName, params) {
-    let dataSet = dataConfig.data[dataSetName];
-    let conConfig = dataConfig.dataSources[dataSet.dataSource].properties;
+    let dataSet = getDataSet(dataSetName);
+    let conConfig = getConConfig(dataSetName);
     let data = null;
     if (dataSet.procedure) {
         data = await executeSqlProcedure(conConfig, dataSet.procedure, params);
@@ -87,6 +88,13 @@ function getDataSet(dataSetName) {
 }
 function getConConfig(dataSetName) {
     let dataSet = getDataSet(dataSetName);
+    let conConfig = dataConfig.dataSources[dataSet.dataSource].properties;
+    if (!conConfig.options) {
+        conConfig.options = {
+            "encrypt": true,
+            "enableArithAbort": true
+        }
+    }
     return dataConfig.dataSources[dataSet.dataSource].properties;
 }
 
@@ -147,10 +155,8 @@ FROM
 }
 
 exports.queryMetadata = async function (dataSetName) {
-  
-    let dataSet = dataConfig.data[dataSetName];
-    let conConfig = dataConfig.dataSources[dataSet.dataSource].properties;
-
+    let dataSet = getDataSet(dataSetName);
+    let conConfig = getConConfig(dataSetName);
     let params = {};
     let query = null;
     if (dataSet.procedure) {

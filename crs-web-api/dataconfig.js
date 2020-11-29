@@ -1,5 +1,11 @@
+var getSql = function (name) {
+  let fs = require('fs');
+  var queryText = fs.readFileSync("./queries/" + name+".sql", 'utf8');
+  return queryText;
+}
 
 exports.configure = function () {
+
   return {
     dataSources: {
       dataMart: {
@@ -27,7 +33,7 @@ exports.configure = function () {
       },
       projTaskList: {
         dataSource: "dataMart",
-        query: "select  * from [data].[DimTask] where [ProjectUID]=@ProjectUID",
+        query: getSql("projTaskList"),// "select  * from [data].[DimTask] where [ProjectUID]=@ProjectUID",
         paramsExample: {
           ProjectUID: ""
         }

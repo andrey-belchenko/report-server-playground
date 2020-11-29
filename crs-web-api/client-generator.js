@@ -169,7 +169,10 @@ exports.generate = async function () {
         }
     );
     fs.writeFileSync("1.txt", mt);
+    process.exit();
 }
 
 exports.generate();
+
+
 
