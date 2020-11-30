@@ -31,7 +31,7 @@ exports.configure = function () {
         dataSource: "dataMart",
         query: "select top 100 * from [data].[DimTask]"
       },
-      taskList2: {
+      taskList3: {
         dataSource: "dataMart",
         query: "select top 100 * from [data].[DimTask]"
       },

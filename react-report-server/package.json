@@ -1,6 +1,6 @@
 {
-  "name": "crs-web-api",
-  "version": "1.0.0",
+  "name": "react-report-server",
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "bin": {
-    "crs-serve": "index.js"
+    "react-report-server": "index.js"
   },
   "dependencies": {
     "colors": "^1.4.0",

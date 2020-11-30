@@ -26,5 +26,6 @@ require('yargs')
         });
 
     })
+    .demandCommand()
     .help()
     .argv;
