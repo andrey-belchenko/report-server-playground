@@ -182,3 +182,15 @@ exports.queryMetadata = async function (dataSetName) {
     return Promise.resolve({ params: params, fields: fields });
 
 }
+
+
+exports.getRemoteDataSetsNames = function () {
+    var list = [];
+    for (var name in dataConfig.data) {
+        var ds = getDataSet(name);
+        if (ds.dataSource) {
+            list.push(name);
+        }
+    }
+    return list;
+}

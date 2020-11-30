@@ -61,7 +61,7 @@ function mapItemsObject(template, itemsObject, targetVarName, callback) {
     return template;
 }
 
-exports.generate = async function () {
+exports.generate = async function (outputFileName) {
     utils.readDataConfig();
     let config = utils.getDataConfig();
     let stypes = "";
@@ -168,11 +168,15 @@ exports.generate = async function () {
 
         }
     );
-    fs.writeFileSync("1.txt", mt);
-    process.exit();
+
+    
+    fs.writeFileSync(outputFileName, mt);
+
+    return Promise.resolve();
+    
 }
 
-exports.generate();
+// exports.generate();
 
 
 
