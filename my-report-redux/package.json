@@ -49,6 +49,6 @@
     ]
   },
   "devDependencies": {
-    "react-report-server": "^1.0.2"
+    "react-report-server": "^1.0.4"
   }
 }

@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { data } from './reportsClient';
+import { data } from './reportapi';
 import Button from 'devextreme-react/button';
 import SelectBox from 'devextreme-react/select-box';
 import TextBox from 'devextreme-react/text-box';

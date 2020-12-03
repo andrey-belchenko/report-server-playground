@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { data, projTaskListItem } from './reportsClient';
+import { data, projTaskListItem } from './reportapi';
 
 function showTasks(tasks:projTaskListItem[]) {
   var x = [];
