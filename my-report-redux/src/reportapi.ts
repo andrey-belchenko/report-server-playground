@@ -70,6 +70,26 @@ export interface projTaskListItem {
     TaskValueCost: number;
     
 }
+export interface rmDataItem {
+    Level: number;
+    IsPlan: number;
+    ProjectUID: string;
+    StageUID: string;
+    PositionUID: string;
+    DepartmentName: string;
+    XLabel: string;
+    ProjectName: string;
+    StageName: string;
+    StageNumber: string;
+    PositionName: string;
+    YearLabel: string;
+    MonthLabel: string;
+    QuarterLabel: string;
+    WeekLabel: string;
+    Date: Date;
+    RowNum: number;
+    
+}
 
 
 
@@ -79,6 +99,7 @@ interface IState {
   taskList: taskListItem[];
   taskList3: taskList3Item[];
   projTaskList: projTaskListItem[];
+  rmData: rmDataItem[];
   year: number;
   month: number;
   ProjectUID: string;
@@ -93,6 +114,7 @@ const counterSlice = createSlice({
     taskList: new Array<taskListItem>(),
     taskList3: new Array<taskList3Item>(),
     projTaskList: new Array<projTaskListItem>(),
+    rmData: new Array<rmDataItem>(),
     year: 0,
     month: 0,
     ProjectUID: "",
@@ -113,6 +135,9 @@ const counterSlice = createSlice({
     },
     projTaskList: (state: IState, action) => {
         state.projTaskList = action.payload;
+    },
+    rmData: (state: IState, action) => {
+        state.rmData = action.payload;
     },
     year: (state: IState, action) => {
         state.year = action.payload;
@@ -175,6 +200,10 @@ const data = {
   projTaskList: {
       useValue: () => useSelector((state: IState) => state.projTaskList),
       refresh: (ProjectUID: string,) => load("projTaskList", {ProjectUID,})
+  },
+  rmData: {
+      useValue: () => useSelector((state: IState) => state.rmData),
+      refresh: () => load("rmData", {})
   },
   year: {
       useValue: () => useSelector((state: IState) => state.year),
