@@ -1,75 +1,6 @@
 import { createSlice, configureStore } from '@reduxjs/toolkit';
 import { useSelector } from 'react-redux';
 
-export interface reportItem {
-    ProjectUID: string;
-    Year: number;
-    MonthName: string;
-    F03: string;
-    F04: string;
-    F05: number;
-    F06: number;
-    F07: number;
-    F08: number;
-    F09: number;
-    F10: number;
-    F11: number;
-    F12: number;
-    F13: number;
-    F14: number;
-    F15: number;
-    F16: number;
-    F17: number;
-    F18: number;
-    
-}
-export interface listItem {
-    ProjectName: string;
-    ProjectUID: string;
-    
-}
-export interface taskListItem {
-    TaskUID: string;
-    ProjectUID: string;
-    ParentTaskUID: string;
-    TaskName: string;
-    TaskWBS: string;
-    TaskOutlineLevel: number;
-    TaskIndex: number;
-    TaskStartDate: string;
-    TaskBaselineStartDate: string;
-    TaskBaselineFinishDate: string;
-    TaskValueCost: number;
-    
-}
-export interface taskList3Item {
-    TaskUID: string;
-    ProjectUID: string;
-    ParentTaskUID: string;
-    TaskName: string;
-    TaskWBS: string;
-    TaskOutlineLevel: number;
-    TaskIndex: number;
-    TaskStartDate: string;
-    TaskBaselineStartDate: string;
-    TaskBaselineFinishDate: string;
-    TaskValueCost: number;
-    
-}
-export interface projTaskListItem {
-    TaskUID: string;
-    ProjectUID: string;
-    ParentTaskUID: string;
-    TaskName: string;
-    TaskWBS: string;
-    TaskOutlineLevel: number;
-    TaskIndex: number;
-    TaskStartDate: string;
-    TaskBaselineStartDate: string;
-    TaskBaselineFinishDate: string;
-    TaskValueCost: number;
-    
-}
 export interface rmDataItem {
     Level: number;
     IsPlan: number;
@@ -90,63 +21,38 @@ export interface rmDataItem {
     RowNum: number;
     
 }
+export interface timeStepListItem {
+    id: string;
+    name: string;
+    
+}
 
 
 
 interface IState {
-  report: reportItem[];
-  list: listItem[];
-  taskList: taskListItem[];
-  taskList3: taskList3Item[];
-  projTaskList: projTaskListItem[];
   rmData: rmDataItem[];
-  year: number;
-  month: number;
-  ProjectUID: string;
+  timeStepList: timeStepListItem[];
+  timeStep: string;
   
 }
 
-const counterSlice = createSlice({
+const slice = createSlice({
   name: 'reportData',
   initialState: {
-    report: new Array<reportItem>(),
-    list: new Array<listItem>(),
-    taskList: new Array<taskListItem>(),
-    taskList3: new Array<taskList3Item>(),
-    projTaskList: new Array<projTaskListItem>(),
     rmData: new Array<rmDataItem>(),
-    year: 0,
-    month: 0,
-    ProjectUID: "",
+    timeStepList: new Array<timeStepListItem>(),
+    timeStep: "",
     
   },
   reducers: {
-    report: (state: IState, action) => {
-        state.report = action.payload;
-    },
-    list: (state: IState, action) => {
-        state.list = action.payload;
-    },
-    taskList: (state: IState, action) => {
-        state.taskList = action.payload;
-    },
-    taskList3: (state: IState, action) => {
-        state.taskList3 = action.payload;
-    },
-    projTaskList: (state: IState, action) => {
-        state.projTaskList = action.payload;
-    },
     rmData: (state: IState, action) => {
         state.rmData = action.payload;
     },
-    year: (state: IState, action) => {
-        state.year = action.payload;
+    timeStepList: (state: IState, action) => {
+        state.timeStepList = action.payload;
     },
-    month: (state: IState, action) => {
-        state.month = action.payload;
-    },
-    ProjectUID: (state: IState, action) => {
-        state.ProjectUID = action.payload;
+    timeStep: (state: IState, action) => {
+        state.timeStep = action.payload;
     },
     
   },
@@ -154,7 +60,7 @@ const counterSlice = createSlice({
 
 
 const reportStore = configureStore({
-  reducer: counterSlice.reducer
+  reducer: slice.reducer
 });
 export { reportStore };
 
@@ -174,48 +80,24 @@ const load = (dsName: string, params: any) => {
     .then(res => res.json())
     .then(
       (result) => {
-        let actions: any = counterSlice.actions;
+        let actions: any = slice.actions;
         reportStore.dispatch(actions[dsName](result));
       }
     );
 }
 
 const data = {
-  report: {
-      useValue: () => useSelector((state: IState) => state.report),
-      refresh: (Year: number,Month: number,) => load("report", {Year,Month,})
-  },
-  list: {
-      useValue: () => useSelector((state: IState) => state.list),
-      refresh: () => load("list", {})
-  },
-  taskList: {
-      useValue: () => useSelector((state: IState) => state.taskList),
-      refresh: () => load("taskList", {})
-  },
-  taskList3: {
-      useValue: () => useSelector((state: IState) => state.taskList3),
-      refresh: () => load("taskList3", {})
-  },
-  projTaskList: {
-      useValue: () => useSelector((state: IState) => state.projTaskList),
-      refresh: (ProjectUID: string,) => load("projTaskList", {ProjectUID,})
-  },
   rmData: {
       useValue: () => useSelector((state: IState) => state.rmData),
-      refresh: () => load("rmData", {})
+      refresh: (timeStep: string,) => load("rmData", {timeStep,})
   },
-  year: {
-      useValue: () => useSelector((state: IState) => state.year),
-      set: (value: number) => reportStore.dispatch(counterSlice.actions.year(value))
+  timeStepList: {
+      useValue: () => useSelector((state: IState) => state.timeStepList),
+      set: (value: object) => reportStore.dispatch(slice.actions.timeStepList(value))
   },
-  month: {
-      useValue: () => useSelector((state: IState) => state.month),
-      set: (value: number) => reportStore.dispatch(counterSlice.actions.month(value))
-  },
-  ProjectUID: {
-      useValue: () => useSelector((state: IState) => state.ProjectUID),
-      set: (value: string) => reportStore.dispatch(counterSlice.actions.ProjectUID(value))
+  timeStep: {
+      useValue: () => useSelector((state: IState) => state.timeStep),
+      set: (value: string) => reportStore.dispatch(slice.actions.timeStep(value))
   },
   
 }

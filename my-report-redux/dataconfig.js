@@ -1,6 +1,6 @@
 var getSql = function (name) {
   let fs = require('fs');
-  var queryText = fs.readFileSync("./queries/" + name+".sql", 'utf8');
+  var queryText = fs.readFileSync("./queries/" + name + ".sql", 'utf8');
   return queryText;
 }
 
@@ -19,36 +19,15 @@ exports.configure = function () {
       }
     },
     data: {
-      report: {
-        dataSource: "dataMart",
-        procedure: "[report].[GetReportActualByMonth]"
-      },
-      list: {
-        dataSource: "dataMart",
-        procedure: "[report].[GetFilterProject]"
-      },
-      taskList: {
-        dataSource: "dataMart",
-        query: "select top 100 * from [data].[DimTask]"
-      },
-      taskList3: {
-        dataSource: "dataMart",
-        query: "select top 100 * from [data].[DimTask]"
-      },
-      projTaskList: {
-        dataSource: "dataMart",
-        query: getSql("projTaskList"),// "select  * from [data].[DimTask] where [ProjectUID]=@ProjectUID",
-        paramsExample: {
-          ProjectUID: ""
-        }
-      },
       rmData: {
         dataSource: "dataMart",
-        query: getSql("rmData"),// "select  * from [data].[DimTask] where [ProjectUID]=@ProjectUID",
+        query: getSql("rmData"),
+        paramsExample: {
+          timeStep: "Month"
+        }
       },
-      year: { example: 0 },
-      month: { example: 0 },
-      ProjectUID: { example: "" }
+      timeStepList: { example: [{ id: '', name: '' }] },
+      timeStep:{example:''}
     }
   }
 };

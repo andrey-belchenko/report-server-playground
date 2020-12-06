@@ -1,33 +1,25 @@
 
 import React from 'react';
-import { data, projTaskListItem } from './reportapi';
+import { data, rmDataItem } from './reportapi';
 
-function showTasks(tasks:projTaskListItem[]) {
+
+
+function main(rows: rmDataItem[]) {
   var x = [];
-  for (let task of tasks) {
-    x.push(<div>{task.TaskUID}</div>);
+  for (let row of rows) {
+    x.push(<div>{row.XLabel}</div>);
   }
   return x;
 }
 
 function ReportCanvas() {
-  const reportData = data.report.useValue();
-  const month = data.month.useValue();
-  const tasks = data.projTaskList.useValue();
+  const rmData = data.rmData.useValue();
   var x = (
     <div>
-      <ul>
-        <div>{month}</div>
-        {reportData.map(item => (
-          <li key={item.ProjectUID}>
-            {item.ProjectUID} {item.MonthName}
-          </li>
-        ))}
-      </ul>
-      <ul>
-        <div>Tasks count:{tasks.length}</div>
-        {showTasks(tasks)}
-      </ul>
+      <div>
+        Report
+        {main(rmData)}
+      </div>
     </div>
   );
   return x;
