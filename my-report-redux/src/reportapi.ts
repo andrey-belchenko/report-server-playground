@@ -32,7 +32,11 @@ export interface timeStepListItem {
 interface IState {
   rmData: rmDataItem[];
   timeStepList: timeStepListItem[];
-  timeStep: string;
+  timeStep: string | undefined;
+  startDate: Date | undefined;
+  endDate: Date | undefined;
+  expandProjects: boolean | undefined;
+  expandStages: boolean | undefined;
   
 }
 
@@ -41,7 +45,11 @@ const slice = createSlice({
   initialState: {
     rmData: new Array<rmDataItem>(),
     timeStepList: new Array<timeStepListItem>(),
-    timeStep: "",
+    timeStep: undefined,
+    startDate: undefined,
+    endDate: undefined,
+    expandProjects: undefined,
+    expandStages: undefined,
     
   },
   reducers: {
@@ -53,6 +61,18 @@ const slice = createSlice({
     },
     timeStep: (state: IState, action) => {
         state.timeStep = action.payload;
+    },
+    startDate: (state: IState, action) => {
+        state.startDate = action.payload;
+    },
+    endDate: (state: IState, action) => {
+        state.endDate = action.payload;
+    },
+    expandProjects: (state: IState, action) => {
+        state.expandProjects = action.payload;
+    },
+    expandStages: (state: IState, action) => {
+        state.expandStages = action.payload;
     },
     
   },
@@ -89,15 +109,31 @@ const load = (dsName: string, params: any) => {
 const data = {
   rmData: {
       useValue: () => useSelector((state: IState) => state.rmData),
-      refresh: (timeStep: string,) => load("rmData", {timeStep,})
+      refresh: (timeStep: string | undefined,) => load("rmData", {timeStep,})
   },
   timeStepList: {
       useValue: () => useSelector((state: IState) => state.timeStepList),
-      set: (value: object) => reportStore.dispatch(slice.actions.timeStepList(value))
+      set: (value: timeStepListItem[]) => reportStore.dispatch(slice.actions.timeStepList(value))
   },
   timeStep: {
       useValue: () => useSelector((state: IState) => state.timeStep),
-      set: (value: string) => reportStore.dispatch(slice.actions.timeStep(value))
+      set: (value: string | undefined) => reportStore.dispatch(slice.actions.timeStep(value))
+  },
+  startDate: {
+      useValue: () => useSelector((state: IState) => state.startDate),
+      set: (value: Date | undefined) => reportStore.dispatch(slice.actions.startDate(value))
+  },
+  endDate: {
+      useValue: () => useSelector((state: IState) => state.endDate),
+      set: (value: Date | undefined) => reportStore.dispatch(slice.actions.endDate(value))
+  },
+  expandProjects: {
+      useValue: () => useSelector((state: IState) => state.expandProjects),
+      set: (value: boolean | undefined) => reportStore.dispatch(slice.actions.expandProjects(value))
+  },
+  expandStages: {
+      useValue: () => useSelector((state: IState) => state.expandStages),
+      set: (value: boolean | undefined) => reportStore.dispatch(slice.actions.expandStages(value))
   },
   
 }

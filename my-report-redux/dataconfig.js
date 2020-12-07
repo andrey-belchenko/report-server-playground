@@ -27,7 +27,11 @@ exports.configure = function () {
         }
       },
       timeStepList: { example: [{ id: '', name: '' }] },
-      timeStep:{example:''}
+      timeStep:{example:''},
+      startDate:{example:new Date()},
+      endDate:{example:new Date()},
+      expandProjects:{example:false},
+      expandStages:{example:false},
     }
   }
 };
