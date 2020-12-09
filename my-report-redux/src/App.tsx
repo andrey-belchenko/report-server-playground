@@ -4,7 +4,8 @@ import './App.css';
 import ReportCanvas from './ReportCanvas';
 import ReportParams from './ReportParams';
 import 'devextreme/dist/css/dx.common.css';
-import 'devextreme/dist/css/dx.softblue.css';
+import 'devextreme/dist/css/dx.light.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   var x = (
